@@ -13,9 +13,9 @@
 #define DebugCode(BLOCK) ;
 #endif
 
-#define HASARC __has_feature(objc_arc)
+#define HAS_ARC __has_feature(objc_arc)
 
-#if HASARC
+#if HAS_ARC
 #define STRONGRETAIN strong
 #define WEAKASSIGN weak
 #define NO_ARC(BLOCK_NO_ARC) ;
@@ -26,6 +26,8 @@
 #define NO_ARC(BLOCK_NO_ARC) BLOCK_NO_ARC
 #define IF_ARC(BLOCK_ARC, BLOCK_NO_ARC) BLOCK_NO_ARC
 #endif
+
+#define NSRelease(OBJ) NO_ARC([OBJ release]);
 
 // outputs a log that is more readable during unit test output
 #define TLog(X, ...) DLog(@">>"); DLog(X, ##__VA_ARGS__); DLog(@"<<");
