@@ -83,9 +83,16 @@ static BOOL IsDevice(DeviceType dType)
  */
 #define IB_OBJECT(NAME) \
     [[[NSBundle mainBundle] loadNibNamed:NAME owner:self options:nil] objectAtIndex:0];
-// Expands to load nib call, using self as the owner
+    
+// Expands to load nib call, using self as the owner and the class name as the nib name
 #define IB_SELF() \
 	IB_OBJECT(NSStringFromClass([self class]))
+
+// Expands to standard nib loading logic when initializing a UIView
+#define IB_INIT() ({ \
+UIView *__view = IB_SELF() \
+self.frame = __view.bounds; \
+[self addSubview:__view]; });
 
 // creates a boolean statment that yeilds YES, if the table is the view controller search results table view
 #define IsSearchResultsTableView(TABLE) \
