@@ -40,6 +40,18 @@
 #define FormatString(S, ...) [NSString stringWithFormat:S, __VA_ARGS__]
 #define FormatLocalizedString(S, ...) [NSString stringWithFormat:NSLocalizedString(S, nil), __VA_ARGS__]
 
+// alias for [NSString stringWithFormat:format, ...]
+static NSString * nssprintf(NSString *format, ...)
+{
+    va_list args;
+    va_start(args, format);
+    NSString *string = [[NSString alloc] initWithFormat:format 
+                                              arguments:args];
+    va_end(args);
+    
+    return [string autorelease];
+}
+
 /**
  * Adds a message to the class that adds support for the target device orientation
  * @params INTF: possible values = Portrait | Landscape
