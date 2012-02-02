@@ -1,5 +1,9 @@
 // Helpful Obj-C/C++ macros
 
+// Expands to a value in MBs
+#define SizeMB(EXPR) 1024 * 1024 * EXPR
+
+#pragma mark - Debug
 #ifdef DEBUG
 #define DLog NSLog
 #define DebugLog(MSG, ...) NSLog((@"%s:%d "MSG), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__)
@@ -13,6 +17,7 @@
 #define DebugCode(BLOCK) ;
 #endif
 
+#pragma mark - ARC Support
 #define HAS_ARC __has_feature(objc_arc)
 
 #if HAS_ARC
@@ -27,18 +32,37 @@
 #define IF_ARC(BLOCK_ARC, BLOCK_NO_ARC) BLOCK_NO_ARC
 #endif
 
-#define NSRelease(OBJ) NO_ARC([OBJ release]);
+#define NSRelease(OBJ) NO_ARC([OBJ release]); OBJ = nil;
+#define NSAutoRelease(OBJ) IF_ARC(OBJ, [OBJ autorelease]);
+#define NSRetain(OBJ) IF_ARC(OBJ, [OBJ retain]);
 
 // outputs a log that is more readable during unit test output
 #define TLog(X, ...) DLog(@">>"); DLog(X, ##__VA_ARGS__); DLog(@"<<");
 
-// NSNumber with int shortcut
-#define NumberInt(N) [NSNumber numberWithInt:N]
-#define NumberFloat(N) [NSNumber numberWithFloat:N]
+#pragma mark - NS Utility Methods
+// NSURL with string
+static inline NSURL * URL(NSString *urlString)
+{
+    return [NSURL URLWithString:urlString];
+}
 
-// NSString format shortcut
-#define FormatString(S, ...) [NSString stringWithFormat:S, __VA_ARGS__]
-#define FormatLocalizedString(S, ...) [NSString stringWithFormat:NSLocalizedString(S, nil), __VA_ARGS__]
+// NSNumber with int shortcut
+static inline NSNumber * NumberInt(int value)
+{
+    return [NSNumber numberWithInt:value];
+}
+
+// NSNumber with double shortcut
+static inline NSNumber * NumberDouble(double value)
+{
+    return [NSNumber numberWithDouble:value];
+}
+
+// NSNumber with float shortcut
+static inline NSNumber * NumberFloat(float value)
+{
+    return [NSNumber numberWithFloat:value];
+}
 
 // alias for [NSString stringWithFormat:format, ...]
 static NSString * nssprintf(NSString *format, ...)
@@ -49,7 +73,7 @@ static NSString * nssprintf(NSString *format, ...)
                                               arguments:args];
     va_end(args);
     
-    return [string autorelease];
+	return NSAutoRelease(string);
 }
 
 /**
@@ -67,21 +91,22 @@ static NSString * nssprintf(NSString *format, ...)
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation \
 { return YES; }
 
+// Specifies the type of device executing the code (running the app)
 typedef enum {
     DeviceTypePad,
     DeviceTypePhone
 } DeviceType;
 
-// Determines the type of device this application is running on
+// Determines the type of device this application is running on (4.0+)
 static BOOL IsDevice(DeviceType dType)
 {
     switch (dType)
     {
         case DeviceTypePad:
-            return (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad);
+            return ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad);
             
         case DeviceTypePhone:
-            return (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone);
+            return ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone);
     }
     
     return NO;
@@ -89,6 +114,12 @@ static BOOL IsDevice(DeviceType dType)
 
 #define IsPhone() IsDevice(DeviceTypePhone)
 #define IsPad() IsDevice(DeviceTypePad)
+
+// if 'is iPad' macro
+#define IF_PAD(T_BLOCK, F_BLOCK) IsPad() ? T_BLOCK : F_BLOCK
+
+// Expands to an expression that evals to YES, if the current application is active
+#define IsAppActive() [UIApplication sharedApplication].applicationState == UIApplicationStateActive
 
 /**
  * Expands to NSBundle nib named. Returns the first object from the nib.
@@ -102,9 +133,9 @@ static BOOL IsDevice(DeviceType dType)
 
 // Expands to standard nib loading logic when initializing a UIView
 #define IB_INIT() ({ \
-UIView *__view = IB_SELF() \
-self.frame = __view.bounds; \
-[self addSubview:__view]; });
+	UIView *__view = IB_SELF() \
+	self.frame = __view.bounds; \
+	[self addSubview:__view]; });
 
 // creates a boolean statment that yeilds YES, if the table is the view controller search results table view
 #define IsSearchResultsTableView(TABLE) \
@@ -113,16 +144,20 @@ self.frame = __view.bounds; \
 /**
  * Creates a UIView core animation block
  */
-#define BEGIN_ANIMATE_CONTEXT(CTX) \
-[UIView beginAnimations:nil \
-context:CTX];
-
 #define BEGIN_ANIMATE \
-[UIView beginAnimations:nil \
-context:NULL];
+    [UIView beginAnimations:nil \
+    context:NULL];
+
+#define BEGIN_ANIMATE_CONTEXT(CTX) \
+    [UIView beginAnimations:nil \
+    context:CTX];
+
+#define BEGIN_ANIMATE_DURATION(DUR) \
+    BEGIN_ANIMATE \
+    [UIView setAnimationDuration:DUR];
 
 #define END_ANIMATE \
-[UIView commitAnimations];
+    [UIView commitAnimations];
 
 // Expands to animate block
 #define AnimateUI(DURATION, BLOCK) \
@@ -130,6 +165,55 @@ context:NULL];
 
 // Expands to the animate block with a default duration
 #define AnimateUI1(BLOCK) AnimateUI(0.3, BLOCK)
+
+// animates the contents of the animations block, executing the completed block after the animations
+static void animate_block(NSTimeInterval duration, void (^animationsBlock)(void), void (^completedBlock)(BOOL done))
+{
+    [UIView animateWithDuration:duration
+                     animations:animationsBlock
+                     completion:completedBlock];
+}
+
+// enable/disabe user interaction (touches)
+#define UI_ENABLE_TOUCHES [[UIApplication sharedApplication] endIgnoringInteractionEvents];
+#define UI_DISABLE_TOUCHES [[UIApplication sharedApplication] beginIgnoringInteractionEvents];
+
+// Sets the view's background to the given image
+static inline void SetBackgroundImage(UIView *view, NSString *imageName) 
+{
+    view.layer.contents = (id)[UIImage imageNamed:imageName].CGImage;
+}
+
+/**
+ * Modify UIView frame macros
+ */
+static void UIViewSetOrigin(UIView *view, CGFloat x, CGFloat y)
+{
+    CGRect rect = view.frame;
+    
+    if (x >= 0)
+        rect.origin.x = x;
+    if (y >= 0)
+        rect.origin.y = y;
+    
+    view.frame = rect;
+}
+
+// sets the size of the frame for the specified view
+static void UIViewSetSize(UIView *view, CGFloat width, CGFloat height)
+{
+    CGRect rect = view.frame;
+    
+    if (width >= 0)
+        rect.size.width = width;
+    if (height >= 0)
+        rect.size.height = height;
+    
+    view.frame = rect;
+}
+
+// UIColor from RGB
+#define UIColorRGB(R, G, B) [UIColor colorWithRed:R green:G blue:B alpha:1.0];
 
 // Expands to a safe delegate selector call
 #define TryDelegateSelector(SELECTOR, ARG1) \
