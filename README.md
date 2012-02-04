@@ -21,4 +21,4 @@ These are just a few of the macros I have created to make code easier to read an
 - Don't abuse macroing. Meaning, don't turn an OOP langauge into a functional one by encapsulating to much functionality in macros.
 	- Macros are not as descriptive as other OOP calls (example: Objective-C method signatures).
 	- Macros are not very nice to real-time lexicon parsers. Some auto-complete engines have trouble with macros. Xcode expands them amazingly well, but barfs when using/typing macro parameters.
-	- Don't use a macro, when a static function can do the same thing with the yeild the same results. Functions play nicer with IDEs and are "smarter".
+	- Don't use a macro, when a static function can do the same thing and yield the same results. Functions play nicer with IDEs and are "smarter".
