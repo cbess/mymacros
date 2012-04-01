@@ -116,7 +116,7 @@ static BOOL IsDevice(DeviceType dType)
 #define IsPad() IsDevice(DeviceTypePad)
 
 // if 'is iPad' macro
-#define IF_PAD(T_BLOCK, F_BLOCK) IsPad() ? T_BLOCK : F_BLOCK
+#define IF_PAD(T_BLOCK, F_BLOCK) (IsPad() ? T_BLOCK : F_BLOCK)
 
 // Expands to an expression that evals to YES, if the current application is active
 #define IsAppActive() [UIApplication sharedApplication].applicationState == UIApplicationStateActive
