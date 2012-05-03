@@ -121,21 +121,57 @@ static BOOL IsDevice(DeviceType dType)
 // Expands to an expression that evals to YES, if the current application is active
 #define IsAppActive() [UIApplication sharedApplication].applicationState == UIApplicationStateActive
 
-/**
- * Expands to NSBundle nib named. Returns the first object from the nib.
- */
-#define IB_OBJECT(NAME) \
-    [[[NSBundle mainBundle] loadNibNamed:NAME owner:self options:nil] objectAtIndex:0];
+// Expands to load IB method call, returning the first object in the nib
+#define IB_OBJECT(NAME) [[[NSBundle mainBundle] loadNibNamed:NAME owner:self options:NULL] objectAtIndex:0]
     
-// Expands to load nib call, using self as the owner and the class name as the nib name
-#define IB_SELF() \
-	IB_OBJECT(NSStringFromClass([self class]))
-
+// Expands to load IB for device
+#define DEVICE_IB_OBJECT(NAME) IB_OBJECT(DeviceNibName(NAME))
+    
+// Expands to load IB call using the current class name, adds ipad suffix when needed
+// Can be used in [init] or [loadView]
+#define DEVICE_IB_SELF() IB_OBJECT(DeviceNibName(NSStringFromClass([self class])))
+    
+// Expands to load IB method call, using current class name for nib name
+#define IB_SELF() IB_OBJECT(NSStringFromClass([self class]));
+    
 // Expands to standard nib loading logic when initializing a UIView
-#define IB_INIT() ({ \
-	UIView *__view = IB_SELF() \
-	self.frame = __view.bounds; \
-	[self addSubview:__view]; });
+#define IB_INIT_NAME(NAME) ({ \
+    UIView *__view = IB_OBJECT(NAME); \
+    self.frame = __view.bounds; \
+    self.autoresizingMask = __view.autoresizingMask; \
+    [self addSubview:__view]; });
+
+// Expands to same as above, except it places the first view in the contentView
+#define IB_INIT_CELL() ({ \
+    UIView *view = IB_SELF() \
+    [self.contentView addSubview:view]; });
+    
+// Expands to same as above, except it uses the class name
+#define IB_INIT() IB_INIT_NAME(NSStringFromClass([self class]))
+    
+// Expands to same as above, except add the device suffix
+#define DEVICE_IB_INIT() IB_INIT_NAME(DeviceNibName(NSStringFromClass([self class])))
+    
+// Expands to an initWithFrame:CGRectZero call, this is mostly for views that use IB_* macros
+#define InitView(CLASS) [[CLASS alloc] initWithFrame:CGRectZero];
+    
+// Sets the view's background to the given image
+static inline void SetBackgroundImage(UIView *view, NSString *imageName)
+{
+    view.layer.contents = (id)[UIImage imageNamed:imageName].CGImage;
+}
+
+// Returns the image name for the current iOS device, appends 'png'
+static inline NSString * DeviceImageName(NSString *imageName)
+{
+    return [imageName stringByAppendingString:(IsPhone() ? @".png" : @"~ipad.png")];
+}
+
+// Returns the xib/nib name for the current iOS device
+static inline NSString * DeviceNibName(NSString *nibName)
+{
+    return (IsPhone() ? nibName : [nibName stringByAppendingString:@"_iPad"]);
+}
 
 // creates a boolean statment that yeilds YES, if the table is the view controller search results table view
 #define IsSearchResultsTableView(TABLE) \
