@@ -205,9 +205,20 @@ static inline NSString * DeviceNibName(NSString *nibName)
 // animates the contents of the animations block, executing the completed block after the animations
 static void animate_block(NSTimeInterval duration, void (^animationsBlock)(void), void (^completedBlock)(BOOL done))
 {
-    [UIView animateWithDuration:duration
-                     animations:animationsBlock
-                     completion:completedBlock];
+    if (duration == 0)
+    {
+        if (animationsBlock)
+            animationsBlock();
+        
+        if (completedBlock)
+            completedBlock(YES);
+    }
+    else
+    {
+        [UIView animateWithDuration:duration
+                         animations:animationsBlock
+                         completion:completedBlock];
+    }
 }
 
 // enable/disabe user interaction (touches)
