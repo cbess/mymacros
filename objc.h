@@ -10,7 +10,7 @@
 #   define CBDebugLog(MSG, ...) NSLog((@"%s:%d "MSG), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__)
 #   define CBDebugMark() CBDebugLog(@"called");
     // outputs the specified code block (can be multi-line)
-#   define DebugCode(BLOCK) BLOCK
+#   define CBDebugCode(BLOCK) BLOCK
 #else
 #   define CBDLog(X, ...) ;
 #   define CBDebugLog ;
