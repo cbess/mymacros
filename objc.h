@@ -4,20 +4,22 @@
 #define SizeMB(EXPR) 1024 * 1024 * EXPR
 
 #pragma mark - Debug
+
 #ifdef DEBUG
-#define DLog NSLog
-#define DebugLog(MSG, ...) NSLog((@"%s:%d "MSG), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__)
-#define DebugMark() DebugLog(@"called");
-// outputs the specified code block (can be multi-line)
-#define DebugCode(BLOCK) BLOCK
+#   define CBDLog NSLog
+#   define CBDebugLog(MSG, ...) NSLog((@"%s:%d "MSG), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__)
+#   define CBDebugMark() CBDebugLog(@"called");
+    // outputs the specified code block (can be multi-line)
+#   define DebugCode(BLOCK) BLOCK
 #else
-#define DLog(X, ...) ;
-#define DebugLog ;
-#define DebugMark() ;
-#define DebugCode(BLOCK) ;
+#   define CBDLog(X, ...) ;
+#   define CBDebugLog ;
+#   define CBDebugMark() ;
+#   define CBDebugCode(BLOCK) ;
 #endif
 
 #pragma mark - ARC Support
+
 #define HAS_ARC __has_feature(objc_arc)
 
 #if HAS_ARC
@@ -40,6 +42,7 @@
 #define TLog(X, ...) DLog(@">>"); DLog(X, ##__VA_ARGS__); DLog(@"<<");
 
 #pragma mark - NS Utility Methods
+
 // NSURL with string
 static inline NSURL * URL(NSString *urlString)
 {
