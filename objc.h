@@ -94,6 +94,13 @@ static NSString * nssprintf(NSString *format, ...)
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation \
 { return YES; }
 
+/**
+ * Expands to a cond. that yields YES if the OS version expression is true.
+ * @param EXPR The version comparison/expression to evaluate.
+ * @discussion Ex: IsOSVersion(>= 7) == 'Device is running iOS 7 or later'
+ */
+#define IsOSVersion(EXPR) ([GBDeviceInfo deviceDetails].majoriOSVersion EXPR)
+
 // Specifies the type of device executing the code (running the app)
 typedef enum {
     DeviceTypePad,
