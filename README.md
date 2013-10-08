@@ -15,7 +15,7 @@ These are just a few of the macros I have created to make code easier to read an
 	- The macro name should, as much as possible, imply the parameter(s) it expects (if any). It's much harder to do when you have several parameters.
 	
 - Macros should try as much as possible to limit the impact of local variables. Meaning, don't add any local variables that are not expected/wanted by the dev.
-	- A macro should avoid creating a global/local variable. It should use one's that are expected to be in scope.
+	- A macro should avoid creating a global/local variable. It should use variables that are expected to be in scope.
         - Use curly braces to confine macro vars to a scope: `({ local_macro_var = 'here'; })`
 	
 - Don't abuse macroing. Meaning, don't turn an OOP langauge into a functional one by encapsulating to much functionality in macros.
