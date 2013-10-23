@@ -101,29 +101,9 @@ static NSString * nssprintf(NSString *format, ...)
  */
 #define IsOSVersion(EXPR) ([GBDeviceInfo deviceDetails].majoriOSVersion EXPR)
 
-// Specifies the type of device executing the code (running the app)
-typedef enum {
-    DeviceTypePad,
-    DeviceTypePhone
-} DeviceType;
-
-// Determines the type of device this application is running on (4.0+)
-static BOOL IsDevice(DeviceType dType)
-{
-    switch (dType)
-    {
-        case DeviceTypePad:
-            return ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad);
-            
-        case DeviceTypePhone:
-            return ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone);
-    }
-    
-    return NO;
-}
-
-#define IsPhone() IsDevice(DeviceTypePhone)
-#define IsPad() IsDevice(DeviceTypePad)
+// Determines the type of device this application
+#define IsPhone() ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone)
+#define IsPad() ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad)
 
 // if 'is iPad' macro
 #define IF_PAD(T_BLOCK, F_BLOCK) (IsPad() ? T_BLOCK : F_BLOCK)
