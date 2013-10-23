@@ -101,7 +101,7 @@ static NSString * nssprintf(NSString *format, ...)
  */
 #define IsOSVersion(EXPR) ([GBDeviceInfo deviceDetails].majoriOSVersion EXPR)
 
-// Determines the type of device this application
+// Determines the type of device running this application
 #define IsPhone() ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone)
 #define IsPad() ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad)
 
