@@ -11,11 +11,13 @@
 #   define CBDebugMark() CBDebugLog(@"called");
     // outputs the specified code block (can be multi-line)
 #   define CBDebugCode(BLOCK) BLOCK
+#   define CBDebugError(ERROR) if (ERROR) { CBDebugLog(@"!! Error: %@", ERROR); }
 #else
 #   define CBDLog(X, ...) ;
 #   define CBDebugLog ;
 #   define CBDebugMark() ;
 #   define CBDebugCode(BLOCK) ;
+#	define CBDebugError(ERR) ;
 #endif
 
 #pragma mark - ARC Support
@@ -109,7 +111,7 @@ static NSString * nssprintf(NSString *format, ...)
 #define IF_PAD(T_BLOCK, F_BLOCK) (IsPad() ? T_BLOCK : F_BLOCK)
 
 // Expands to an expression that evals to YES, if the current application is active
-#define IsAppActive() [UIApplication sharedApplication].applicationState == UIApplicationStateActive
+#define IsAppActive() ([UIApplication sharedApplication].applicationState == UIApplicationStateActive)
 
 // Expands to load IB method call, returning the first object in the nib
 #define IB_OBJECT(NAME) [[[NSBundle mainBundle] loadNibNamed:NAME owner:self options:NULL] objectAtIndex:0]
@@ -193,7 +195,7 @@ static inline NSString * DeviceNibName(NSString *nibName)
 #define AnimateUI1(BLOCK) AnimateUI(0.3, BLOCK)
 
 // animates the contents of the animations block, executing the completed block after the animations
-static void animate_block(NSTimeInterval duration, void (^animationsBlock)(void), void (^completedBlock)(BOOL done))
+static void animate_block(NSTimeInterval duration, void (^animationsBlock)(void), void (^completedBlock)(BOOL finished))
 {
     if (duration == 0)
     {
