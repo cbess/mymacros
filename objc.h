@@ -17,7 +17,7 @@
 #   define CBDebugLog ;
 #   define CBDebugMark() ;
 #   define CBDebugCode(BLOCK) ;
-#	define CBDebugError(ERR) ;
+#   define CBDebugError(ERR) ;
 #endif
 
 #pragma mark - ARC Support
@@ -51,24 +51,6 @@ static inline NSURL * URL(NSString *urlString)
     return [NSURL URLWithString:urlString];
 }
 
-// NSNumber with int shortcut
-static inline NSNumber * NumberInt(int value)
-{
-    return [NSNumber numberWithInt:value];
-}
-
-// NSNumber with double shortcut
-static inline NSNumber * NumberDouble(double value)
-{
-    return [NSNumber numberWithDouble:value];
-}
-
-// NSNumber with float shortcut
-static inline NSNumber * NumberFloat(float value)
-{
-    return [NSNumber numberWithFloat:value];
-}
-
 // alias for [NSString stringWithFormat:format, ...]
 static NSString * nssprintf(NSString *format, ...)
 {
@@ -78,7 +60,7 @@ static NSString * nssprintf(NSString *format, ...)
                                               arguments:args];
     va_end(args);
     
-	return NSAutoRelease(string);
+    return NSAutoRelease(string);
 }
 
 /**
@@ -146,12 +128,6 @@ static NSString * nssprintf(NSString *format, ...)
     
 // Expands to an initWithFrame:CGRectZero call, this is mostly for views that use IB_* macros
 #define InitView(CLASS) [[CLASS alloc] initWithFrame:CGRectZero];
-    
-// Sets the view's background to the given image
-static inline void SetBackgroundImage(UIView *view, NSString *imageName)
-{
-    view.layer.contents = (id)[UIImage imageNamed:imageName].CGImage;
-}
 
 // Returns the image name for the current iOS device, appends 'png'
 static inline NSString * DeviceImageName(NSString *imageName)
@@ -163,6 +139,25 @@ static inline NSString * DeviceImageName(NSString *imageName)
 static inline NSString * DeviceNibName(NSString *nibName)
 {
     return (IsPhone() ? nibName : [nibName stringByAppendingString:@"_iPad"]);
+}
+
+/**
+ * Returns YES if the specified username is the current dev/user running the app.
+ * @param username User's home folder name.
+ * @discussion Useful for blocks of logic you only want executed if running app as a particular dev/user.
+ */
+static BOOL IsCurrentDebugUsername(NSString *username)
+{
+#ifndef DEBUG
+    return NO;
+#endif
+    
+#if TARGET_IPHONE_SIMULATOR
+    NSString *path = [[NSBundle mainBundle] pathForResource:@"Default" ofType:@"png"];
+    return [path hasPrefix:[@"/Users/" stringByAppendingPathComponent:username]];
+#else
+    return NO;
+#endif
 }
 
 // creates a boolean statment that yeilds YES, if the table is the view controller search results table view
@@ -197,7 +192,7 @@ static inline NSString * DeviceNibName(NSString *nibName)
 // animates the contents of the animations block, executing the completed block after the animations
 static void animate_block(NSTimeInterval duration, void (^animationsBlock)(void), void (^completedBlock)(BOOL finished))
 {
-    if (duration == 0)
+    if (duration <= 0)
     {
         if (animationsBlock)
             animationsBlock();
@@ -218,7 +213,7 @@ static void animate_block(NSTimeInterval duration, void (^animationsBlock)(void)
 #define UI_DISABLE_TOUCHES [[UIApplication sharedApplication] beginIgnoringInteractionEvents];
 
 // Sets the view's background to the given image
-static inline void SetBackgroundImage(UIView *view, NSString *imageName) 
+static inline void CBSetBackgroundImage(UIView *view, NSString *imageName) 
 {
     view.layer.contents = (id)[UIImage imageNamed:imageName].CGImage;
 }
@@ -252,7 +247,7 @@ static void UIViewSetSize(UIView *view, CGFloat width, CGFloat height)
 }
 
 // UIColor from RGB
-#define UIColorRGB(R, G, B) [UIColor colorWithRed:R green:G blue:B alpha:1.0];
+#define UIColorRGB(R, G, B) [UIColor colorWithRed:R green:G blue:B alpha:1];
 
 // Expands to a safe delegate selector call
 #define TryDelegateSelector(SELECTOR, ARG1) \
