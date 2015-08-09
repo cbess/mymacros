@@ -263,3 +263,24 @@ dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_##LVL, 0), ^{
 dispatch_async(dispatch_get_main_queue(), ^{
 
 #define END_ASYNC });
+
+#define ASYNC_START ASYNC_START_QUEUE(DEFAULT)
+#define THEN_ASYNC_MAIN MAIN_QUEUE_START
+#define END_ASYNC_MAIN END_ASYNC END_ASYNC
+
+// executes the specified worker block on the background thread, then calling the main thread block afterwards, if not nil
+//static void dispatch_worker(void (^workerBlock)(void), void (^mainThreadBlock)(void)) __attribute__ ((unused));
+static void dispatch_worker(void (^workerBlock)(void), void (^mainThreadBlock)(void))
+{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        if (workerBlock) {
+            workerBlock();
+        }
+        
+        if (mainThreadBlock) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                mainThreadBlock();
+            });
+        }
+    });
+}
