@@ -83,7 +83,7 @@ static NSString * nssprintf(NSString *format, ...)
  * @param EXPR The version comparison/expression to evaluate.
  * @discussion Ex: IsOSVersion(>= 7) == 'Device is running iOS 7 or later'
  */
-#define IsOSVersion(EXPR) ([GBDeviceInfo deviceDetails].majoriOSVersion EXPR)
+#define IsOSVersion(EXPR) [GBDeviceInfo deviceInfo].osVersion.major EXPR
 
 // Determines the type of device running this application
 #define IsPhone() ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone)
