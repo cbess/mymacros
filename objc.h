@@ -284,3 +284,16 @@ static void dispatch_worker(void (^workerBlock)(void), void (^mainThreadBlock)(v
         }
     });
 }
+
+// usage: RETURN_HASH_SHA(256, someStringVar)
+/// Expands to body of logic to return the hash of the specified string
+#define RETURN_HASH_SHA(HASH_LEN, STR_) \
+    const uint hashLen = CC_SHA##HASH_LEN##_DIGEST_LENGTH; \
+    unsigned char result[hashLen]; \
+    NSData *data = [STR_ dataUsingEncoding:NSUTF8StringEncoding]; \
+    CC_SHA##HASH_LEN(data.bytes, (CC_LONG)data.length, result); \
+    NSMutableString *hash = [NSMutableString stringWithCapacity:hashLen * 2]; \
+    for (int idx = 0; idx < hashLen; idx++) { \
+        [hash appendFormat:@"%02x", result[idx]]; \
+    } \
+    return hash;
